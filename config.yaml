@@ -3,7 +3,7 @@ seed_everything: 42
 trainer:
   accelerator: gpu
   strategy: ddp_find_unused_parameters_true
-  devices: [0]
+  devices: [0, 1]
   num_nodes: 1
   precision: 32
   logger:
@@ -13,9 +13,8 @@ trainer:
         name: experiment
 
   callbacks:
-    - class_path: RichProgressBar
-      init_args:
-        leave: True
+    - class_path: TQDMProgressBar  # Replace RichProgressBar with TQDMProgressBar
+
 
     - class_path: ModelCheckpoint
       init_args:
@@ -99,4 +98,4 @@ data:
   norm: True                            # Whether to normalize the input
   num_workers: 32
 
-ckpt_path:
+ckpt_path: 

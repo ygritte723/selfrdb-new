@@ -431,7 +431,10 @@ class NCSNpp(nn.Module):
         for i_level in range(self.num_resolutions):
             # Residual blocks for this resolution
             for i_block in range(self.num_res_blocks):
+                # print(f"Module index: {m_idx}, Module type: {type(modules[m_idx])}")
+                # print(f"Arguments: hs[-1]: {hs[-1].shape}, temb: {temb.shape if temb is not None else None}, zemb: {zemb.shape if zemb is not None else None}")
                 h = modules[m_idx](hs[-1], temb, zemb)
+                # h = modules[m_idx](hs[-1])
                 m_idx += 1
                 if h.shape[-1] in self.attn_resolutions:
                     h = modules[m_idx](h)

@@ -1,0 +1,43 @@
+PyTorch version: 2.4.1+cu121
+cpp_extension available: True
+CUDA available: True
+Seed set to 42
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+HPU available: False, using: 0 HPUs
+You are using a CUDA device ('NVIDIA H100 NVL') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+[rank: 0] Seed set to 42
+Initializing distributed: GLOBAL_RANK: 0, MEMBER: 1/2
+PyTorch version: 2.4.1+cu121
+cpp_extension available: True
+CUDA available: True
+[rank: 1] Seed set to 42
+[rank: 1] Seed set to 42
+Initializing distributed: GLOBAL_RANK: 1, MEMBER: 2/2
+----------------------------------------------------------------------------------------------------
+distributed_backend=nccl
+All distributed processes registered. Starting with 2 processes
+----------------------------------------------------------------------------------------------------
+
+/home/xzhon54/xinliuz/wangdata/data/usr-env/xinliu/selfrdb/lib/python3.8/site-packages/lightning/fabric/loggers/csv_logs.py:269: Experiment logs directory logs/experiment/version_4/test exists and is not empty. Previous log files in this directory will be deleted when the new ones are saved!
+Restoring states from the checkpoint path at logs/experiment/version_4/checkpoints/epoch=49-step=8700.ckpt
+/home/xzhon54/xinliuz/wangdata/data/usr-env/xinliu/selfrdb/lib/python3.8/site-packages/lightning/fabric/utilities/cloud_io.py:57: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1,2]
+/home/xzhon54/xinliuz/wangdata/data/usr-env/xinliu/selfrdb/lib/python3.8/site-packages/lightning/fabric/utilities/cloud_io.py:57: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+LOCAL_RANK: 1 - CUDA_VISIBLE_DEVICES: [0,1,2]
+Loaded model weights from the checkpoint at logs/experiment/version_4/checkpoints/epoch=49-step=8700.ckpt
+2.4.1+cu121
+_CudaDeviceProperties(name='NVIDIA H100 NVL', major=9, minor=0, total_memory=95346MB, multi_processor_count=132)
+tensor([-1.0293], device='cuda:0')
+Cropping dataset from shape (100, 304, 304) to (256, 256)
+Cropping dataset from shape (100, 348, 384) to (256, 256)
+/home/xzhon54/xinliuz/wangdata/data/usr-env/xinliu/selfrdb/lib/python3.8/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:215: Using `DistributedSampler` with the dataloaders. During `trainer.test()`, it is recommended to use `Trainer(devices=1, num_nodes=1)` to ensure each sample/batch gets evaluated exactly once. Otherwise, multi-device settings use `DistributedSampler` that replicates some samples to make sure all devices have same batch size in case of uneven inputs.
+2.4.1+cu121
+_CudaDeviceProperties(name='NVIDIA H100 NVL', major=9, minor=0, total_memory=95346MB, multi_processor_count=132)
+tensor([-0.1183], device='cuda:0')
+Cropping dataset from shape (100, 304, 304) to (256, 256)
+Cropping dataset from shape (100, 348, 384) to (256, 256)
+Testing: |          | 0/? [00:00<?, ?it/s]Testing:   0%|          | 0/50 [00:00<?, ?it/s]Testing DataLoader 0:   0%|          | 0/50 [00:00<?, ?it/s]Testing DataLoader 0:   2%|▏         | 1/50 [00:01<00:51,  0.96it/s]Testing DataLoader 0:   4%|▍         | 2/50 [00:01<00:42,  1.13it/s]Testing DataLoader 0:   6%|▌         | 3/50 [00:02<00:38,  1.21it/s]Testing DataLoader 0:   8%|▊         | 4/50 [00:03<00:36,  1.25it/s]Testing DataLoader 0:  10%|█         | 5/50 [00:03<00:35,  1.27it/s]Testing DataLoader 0:  12%|█▏        | 6/50 [00:04<00:34,  1.29it/s]Testing DataLoader 0:  14%|█▍        | 7/50 [00:05<00:32,  1.31it/s]Testing DataLoader 0:  16%|█▌        | 8/50 [00:06<00:31,  1.33it/s]Testing DataLoader 0:  18%|█▊        | 9/50 [00:06<00:30,  1.34it/s]Testing DataLoader 0:  20%|██        | 10/50 [00:07<00:29,  1.35it/s]Testing DataLoader 0:  22%|██▏       | 11/50 [00:08<00:28,  1.36it/s]Testing DataLoader 0:  24%|██▍       | 12/50 [00:08<00:27,  1.36it/s]Testing DataLoader 0:  26%|██▌       | 13/50 [00:09<00:27,  1.36it/s]Testing DataLoader 0:  28%|██▊       | 14/50 [00:10<00:26,  1.36it/s]Testing DataLoader 0:  30%|███       | 15/50 [00:10<00:25,  1.36it/s]Testing DataLoader 0:  32%|███▏      | 16/50 [00:11<00:24,  1.37it/s]Testing DataLoader 0:  34%|███▍      | 17/50 [00:12<00:24,  1.37it/s]Testing DataLoader 0:  36%|███▌      | 18/50 [00:13<00:23,  1.37it/s]Testing DataLoader 0:  38%|███▊      | 19/50 [00:13<00:22,  1.37it/s]Testing DataLoader 0:  40%|████      | 20/50 [00:14<00:21,  1.37it/s]Testing DataLoader 0:  42%|████▏     | 21/50 [00:15<00:21,  1.37it/s]Testing DataLoader 0:  44%|████▍     | 22/50 [00:16<00:20,  1.37it/s]Testing DataLoader 0:  46%|████▌     | 23/50 [00:16<00:19,  1.37it/s]Testing DataLoader 0:  48%|████▊     | 24/50 [00:17<00:18,  1.37it/s]Testing DataLoader 0:  50%|█████     | 25/50 [00:18<00:18,  1.37it/s]Testing DataLoader 0:  52%|█████▏    | 26/50 [00:18<00:17,  1.37it/s]Testing DataLoader 0:  54%|█████▍    | 27/50 [00:19<00:16,  1.37it/s]Testing DataLoader 0:  56%|█████▌    | 28/50 [00:20<00:16,  1.37it/s]Testing DataLoader 0:  58%|█████▊    | 29/50 [00:21<00:15,  1.37it/s]Testing DataLoader 0:  60%|██████    | 30/50 [00:21<00:14,  1.37it/s]Testing DataLoader 0:  62%|██████▏   | 31/50 [00:22<00:13,  1.37it/s]Testing DataLoader 0:  64%|██████▍   | 32/50 [00:23<00:13,  1.37it/s]Testing DataLoader 0:  66%|██████▌   | 33/50 [00:24<00:12,  1.37it/s]Testing DataLoader 0:  68%|██████▊   | 34/50 [00:24<00:11,  1.37it/s]Testing DataLoader 0:  70%|███████   | 35/50 [00:25<00:10,  1.38it/s]Testing DataLoader 0:  72%|███████▏  | 36/50 [00:26<00:10,  1.38it/s]Testing DataLoader 0:  74%|███████▍  | 37/50 [00:26<00:09,  1.38it/s]Testing DataLoader 0:  76%|███████▌  | 38/50 [00:27<00:08,  1.38it/s]Testing DataLoader 0:  78%|███████▊  | 39/50 [00:28<00:07,  1.38it/s]Testing DataLoader 0:  80%|████████  | 40/50 [00:29<00:07,  1.38it/s]Testing DataLoader 0:  82%|████████▏ | 41/50 [00:29<00:06,  1.38it/s]Testing DataLoader 0:  84%|████████▍ | 42/50 [00:30<00:05,  1.38it/s]Testing DataLoader 0:  86%|████████▌ | 43/50 [00:31<00:05,  1.38it/s]Testing DataLoader 0:  88%|████████▊ | 44/50 [00:31<00:04,  1.38it/s]Testing DataLoader 0:  90%|█████████ | 45/50 [00:32<00:03,  1.38it/s]Testing DataLoader 0:  92%|█████████▏| 46/50 [00:33<00:02,  1.38it/s]Testing DataLoader 0:  94%|█████████▍| 47/50 [00:34<00:02,  1.38it/s]Testing DataLoader 0:  96%|█████████▌| 48/50 [00:34<00:01,  1.38it/s]Testing DataLoader 0:  98%|█████████▊| 49/50 [00:35<00:00,  1.38it/s]Testing DataLoader 0: 100%|██████████| 50/50 [00:36<00:00,  1.38it/s]Testing DataLoader 0: 100%|██████████| 50/50 [00:36<00:00,  1.38it/s]
+Predictions saved to logs/experiment/version_4/test/test_samples/pred.npy
+PSNR: 19.34 ± 1.24
+SSIM: 64.23 ± 17.01

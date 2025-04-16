@@ -31,15 +31,26 @@ class BaseDataset(Dataset):
 
     def _pad_data(self, data):
         """ Pad data to image_size x image_size """
-        H, W = data.shape[-2:]
+        h, w = data.shape[-2:]  # Get the height and width of the data
+        pad_h = max(0, self.image_size - h)  # Ensure padding is non-negative
+        pad_w = max(0, self.image_size - w)  # Ensure padding is non-negative
+        # Skip padding if the data already meets or exceeds the required size
+    # If the data is larger than the required size, crop it
+        if h > self.image_size or w > self.image_size:
+            print(f"Cropping dataset from shape {data.shape} to ({self.image_size}, {self.image_size})")
+            crop_top = (h - self.image_size) // 2
+            crop_bottom = crop_top + self.image_size
+            crop_left = (w - self.image_size) // 2
+            crop_right = crop_left + self.image_size
+            return data[:, crop_top:crop_bottom, crop_left:crop_right]
 
-        pad_top = (self.image_size - H) // 2
-        pad_bottom = self.image_size - H - pad_top
-        pad_left = (self.image_size - W) // 2
-        pad_right = self.image_size - W - pad_left
+        pad_top = pad_h // 2
+        pad_bottom = pad_h - pad_top
+        pad_left = pad_w // 2
+        pad_right = pad_w - pad_left
 
         return np.pad(data, ((0, 0), (pad_top, pad_bottom), (pad_left, pad_right)))
-
+    
     def _normalize(self, data):
         return (data - 0.5) / 0.5
 
@@ -71,7 +82,7 @@ class NumpyDataset(BaseDataset):
 
         # Get original shape
         self.original_shape = self.target.shape[-2:]
-
+        self.original_shape = self.source.shape[-2:]
         # Load subject ids
         self.subject_ids = self._load_subject_ids('subject_ids.yaml')
 
@@ -117,7 +128,7 @@ class NumpyDataset(BaseDataset):
 
     def __getitem__(self, i):
         return self.target[i], self.source[i], i
-
+        # return self.source[i], i
 
 class DataModule(L.LightningDataModule):
     def __init__(

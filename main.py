@@ -1,7 +1,13 @@
 import os
+os.environ["TORCH_CUDA_ARCH_LIST"] = "9.0"
 from random import random
 import numpy as np
 import torch
+import torch.utils.cpp_extension
+print("PyTorch version:", torch.__version__)
+print("cpp_extension available:", hasattr(torch.utils, "cpp_extension"))
+print("CUDA available:", torch.cuda.is_available())
+
 from torch.nn import functional as F
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
@@ -13,8 +19,11 @@ from backbones.ncsnpp import NCSNpp
 from backbones.discriminator import Discriminator_large
 from datasets import DataModule
 from utils import compute_metrics, save_image_pair, save_preds, save_eval_images
+from lightning.pytorch.callbacks import TQDMProgressBar, ModelCheckpoint, LearningRateMonitor
+print(torch.__version__)
+print(torch.cuda.get_device_properties(0))
 
-
+print(torch.randn(1, device="cuda"))
 class BridgeRunner(L.LightningModule):
     def __init__(
         self,
@@ -183,13 +192,13 @@ class BridgeRunner(L.LightningModule):
         if self.eval_mask:
             self.mask = self.trainer.datamodule.test_dataset._load_data('mask')
 
-        # Load subject ids for evaluation
+        # # Load subject ids for evaluation
         if self.eval_subject:
             self.subject_ids = self.trainer.datamodule.test_dataset.subject_ids
 
     def test_step(self, batch, batch_idx):
         x0, y, slice_idx = batch
-
+        # y, slice_idx = batch  # Adjust to match the dataset output
         # Predict x0
         x0_pred = self.diffusion.sample_x0(y, self.generator)
 
@@ -198,7 +207,7 @@ class BridgeRunner(L.LightningModule):
         slice_indices = self.all_gather(slice_idx)
         
         if self.global_rank == 0:
-            h, w = x0.shape[-2:]
+            h, w = y.shape[-2:]
             self.test_samples.extend(list(zip(
                 slice_indices.flatten().tolist(),
                 all_pred.reshape(-1, h, w).cpu().numpy())))
@@ -225,7 +234,7 @@ class BridgeRunner(L.LightningModule):
             # Save predictions
             path = os.path.join(self.logger.log_dir, "test_samples", "pred.npy")
             save_preds(pred, path)
-
+            print(f"Predictions saved to {path}")
             # Compute metrics and save report
             metrics = compute_metrics(
                 gt_images=target,
@@ -235,7 +244,7 @@ class BridgeRunner(L.LightningModule):
                 report_path=os.path.join(self.logger.log_dir, "test_samples", "report.txt")
             )
 
-            # Print metrics
+            # # Print metrics
             print(f"PSNR: {metrics['psnr_mean']:.2f} ± {metrics['psnr_std']:.2f}")
             print(f"SSIM: {metrics['ssim_mean']:.2f} ± {metrics['ssim_std']:.2f}")
 
@@ -280,11 +289,18 @@ class _LightningCLI(LightningCLI):
 
 
 def cli_main():
+    # callbacks = [
+    #     TQDMProgressBar(),  # Replace RichProgressBar with TQDMProgressBar
+    #     ModelCheckpoint(every_n_epochs=10, save_on_train_epoch_end=True, save_top_k=-1),
+    #     LearningRateMonitor(logging_interval="step"),
+    # ]
+
     cli = _LightningCLI(
         BridgeRunner,
         DataModule,
         save_config_callback=None,
-        parser_kwargs={"parser_mode": "omegaconf"}
+        parser_kwargs={"parser_mode": "omegaconf"},
+        # trainer_defaults={"callbacks": callbacks},  # Pass callbacks here
     )
 
 

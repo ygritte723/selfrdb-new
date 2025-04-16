@@ -96,6 +96,7 @@ torch::Tensor fused_bias_act_op(const torch::Tensor& input, const torch::Tensor&
             use_ref
         );
     });
-
+    cudaError_t err = cudaGetLastError();
+    TORCH_CHECK(err == cudaSuccess, "CUDA kernel failed: ", cudaGetErrorString(err));
     return y;
 }
