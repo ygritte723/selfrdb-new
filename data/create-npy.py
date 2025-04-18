@@ -4,9 +4,56 @@ import nibabel as nib
 from pathlib import Path
 from tqdm import tqdm
 import yaml
+import SimpleITK as sitk
 
 # Set quaternion threshold for nibabel if needed.
 nib.Nifti1Header.quaternion_threshold = -1e-06
+
+def register_to_fixed(fixed_path, moving_path):
+    # Read as ITK images
+    fixed  = sitk.ReadImage(str(fixed_path), sitk.sitkFloat32)
+    moving = sitk.ReadImage(str(moving_path), sitk.sitkFloat32)
+
+    # Configure a simple rigid registration
+    registration_method = sitk.ImageRegistrationMethod()
+    registration_method.SetMetricAsMeanSquares()
+    registration_method.SetOptimizerAsRegularStepGradientDescent(
+        learningRate=1.0, minStep=1e-6, numberOfIterations=100)
+    registration_method.SetInitialTransform(sitk.CenteredTransformInitializer(
+        fixed, moving, sitk.Euler3DTransform(), sitk.CenteredTransformInitializerFilter.GEOMETRY))
+    registration_method.SetInterpolator(sitk.sitkLinear)
+
+    transform = registration_method.Execute(fixed, moving)
+
+    # Resample moving into fixed space
+    resampler = sitk.ResampleImageFilter()
+    resampler.SetReferenceImage(fixed)
+    resampler.SetInterpolator(sitk.sitkLinear)
+    resampler.SetTransform(transform)
+    resampled = resampler.Execute(moving)
+
+    # Convert back to numpy array, shape (X,Y,Z)
+    arr = sitk.GetArrayFromImage(resampled)    # returns [Z,Y,X]
+    return np.transpose(arr, (2,1,0))          # now [X,Y,Z]
+
+
+# sits alongside your existing register_to_fixed()
+def load_and_register(subject_path, modality, other_mod, dirs):
+    """
+    Load the 'fixed' volume for `modality` and 
+    register the 'moving' volume for `other_modality` into its space.
+    Returns a single numpy array in the fixed space.
+    """
+    fixed_path  = subject_path
+    moving_path = Path(dirs[other_mod]) / subject_path.name
+    if moving_path.exists():
+        # sitk returns (X,Y,Z), nib ordering is (i,j,k) so transpose
+        data = register_to_fixed(fixed_path, moving_path)
+    else:
+        data = nib.load(str(fixed_path)).get_fdata()
+    return data
+
+
 
 def create_numpy_dataset_subject_splits(modality_dirs_dict, output_root, slice_range=None, rotate=False):
     """
@@ -85,8 +132,18 @@ def create_numpy_dataset_subject_splits(modality_dirs_dict, output_root, slice_r
                 # Load the image file.
                 img = nib.load(str(file_path))
                 data = img.get_fdata()
-                print(f"    Image shape: {data.shape}")
-
+                data = np.squeeze(data)
+                if data.shape == (300, 213, 208):
+                    data = np.transpose(data, (2, 0, 1))
+                if data.shape != (208, 300, 213):
+                    print(f"    Image shape: {data.shape}")
+                
+                # data = load_and_register(
+                #     file_path, 
+                #     modality,
+                #     other_mod=('t2' if modality=='t1' else 't1'),
+                #     dirs=modality_dirs_dict
+                # )
                 total_slices = int(data.shape[2])
                 if slice_range is None:
                     start, end = total_slices // 2 - 50, total_slices // 2 + 50
@@ -96,7 +153,7 @@ def create_numpy_dataset_subject_splits(modality_dirs_dict, output_root, slice_r
                 print(f"    Processing slices from index {start} to {end-1}")
 
                 slice_files = []
-                for i in tqdm(range(start, end), desc=f"Subject {subject_id} - {split}"):
+                for i in range(start, end):
                     slice_data = data[:, :, i]
                     if rotate:
                         slice_data = np.rot90(slice_data, -1)  # Rotate 90° clockwise if needed
@@ -128,10 +185,10 @@ def create_numpy_dataset_subject_splits(modality_dirs_dict, output_root, slice_r
 if __name__ == "__main__":
     # Dictionary mapping modality names to directories containing NIfTI images.
     modality_dirs_dict = {
-        "t1": "/home/xzhon54/wangdata/data/M_CRIB/whole_brain/preprocessed_T1w",
-        "t2": "/home/xzhon54/wangdata/data/M_CRIB/whole_brain/preprocessed_T2w"
+        "t1": "/home/xzhon54/wangdata/data/upload_here/Xuzhe/BCP_55/50_T2_infants/T1s",
+        "t2": "/home/xzhon54/wangdata/data/upload_here/Xuzhe/BCP_55/50_T2_infants/T2s"
     }
-    output_root = "datasets/infant"  # Set your desired output directory
+    output_root = "datasets/bcp"  # Set your desired output directory
     
     # The slice_range parameter remains optional. If None, all slices are processed.
     create_numpy_dataset_subject_splits(modality_dirs_dict, output_root, slice_range=None, rotate=False)
