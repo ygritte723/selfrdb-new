@@ -30,26 +30,38 @@ class BaseDataset(Dataset):
         pass
 
     def _pad_data(self, data):
-        """ Pad data to image_size x image_size """
-        h, w = data.shape[-2:]  # Get the height and width of the data
-        pad_h = max(0, self.image_size - h)  # Ensure padding is non-negative
-        pad_w = max(0, self.image_size - w)  # Ensure padding is non-negative
-        # Skip padding if the data already meets or exceeds the required size
-    # If the data is larger than the required size, crop it
-        if h > self.image_size or w > self.image_size:
-            print(f"Cropping dataset from shape {data.shape} to ({self.image_size}, {self.image_size})")
-            crop_top = (h - self.image_size) // 2
-            crop_bottom = crop_top + self.image_size
-            crop_left = (w - self.image_size) // 2
-            crop_right = crop_left + self.image_size
-            return data[:, crop_top:crop_bottom, crop_left:crop_right]
+        """Ensure data is exactly image_size x image_size by cropping or padding per-dimension."""
+        h, w = data.shape[-2:]  # current height and width
 
+        # --- Crop if larger ---
+        # Compute crop indices
+        top = 0
+        left = 0
+        bottom = h
+        right = w
+        if h > self.image_size:
+            crop = (h - self.image_size) // 2
+            top = crop
+            bottom = crop + self.image_size
+        if w > self.image_size:
+            crop = (w - self.image_size) // 2
+            left = crop
+            right = crop + self.image_size
+        # apply cropping on the last two dims
+        data = data[..., top:bottom, left:right]
+
+        # --- Pad if smaller ---
+        h_c, w_c = data.shape[-2:]
+        pad_h = max(0, self.image_size - h_c)
+        pad_w = max(0, self.image_size - w_c)
         pad_top = pad_h // 2
         pad_bottom = pad_h - pad_top
         pad_left = pad_w // 2
         pad_right = pad_w - pad_left
 
-        return np.pad(data, ((0, 0), (pad_top, pad_bottom), (pad_left, pad_right)))
+        # pad only last two dims; leave other dims unchanged
+        pad_width = [(0, 0)] * (data.ndim - 2) + [(pad_top, pad_bottom), (pad_left, pad_right)]
+        return np.pad(data, pad_width, mode='constant', constant_values=0)
     
     def _normalize(self, data):
         return (data - 0.5) / 0.5
@@ -110,7 +122,7 @@ class NumpyDataset(BaseDataset):
         data = []
         for file in files:
             data.append(np.load(os.path.join(data_dir, file)))
-        
+            # print(f"Loaded {file} with shape {data[-1].shape}")      
         return np.array(data).astype(np.float32)
 
     def _load_subject_ids(self, filename):
