@@ -20,9 +20,7 @@ from backbones.discriminator import Discriminator_large
 from datasets import DataModule
 from utils import compute_metrics, save_image_pair, save_preds, save_eval_images
 from lightning.pytorch.callbacks import TQDMProgressBar, ModelCheckpoint, LearningRateMonitor
-print(torch.__version__)
 print(torch.cuda.get_device_properties(0))
-
 print(torch.randn(1, device="cuda"))
 class BridgeRunner(L.LightningModule):
     def __init__(
