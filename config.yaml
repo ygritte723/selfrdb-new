@@ -13,7 +13,7 @@ trainer:
         name: experiment
 
   callbacks:
-    # - class_path: TQDMProgressBar  # Replace RichProgressBar with TQDMProgressBar
+    - class_path: TQDMProgressBar  # Replace RichProgressBar with TQDMProgressBar
 
 
     - class_path: ModelCheckpoint
